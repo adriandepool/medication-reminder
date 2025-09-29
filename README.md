@@ -46,7 +46,9 @@ Este proyecto ha sido desarrollado de forma incremental, añadiendo funcionalida
 ## 🚀 ¿Cómo Usarlo?
 
 ### 1. Visita la Demo
-Haz clic en el enlace de la demo en vivo que aparece arriba.
+Haz clic en el enlace de la demo en vivo.
+
+[**Ver Demo en Vivo →**](https://adriandepool.github.io/medication-reminder/)
 
 ### 2. O úsalo localmente
 1. **Guarda el archivo**: Descarga el archivo `index.html`.  
