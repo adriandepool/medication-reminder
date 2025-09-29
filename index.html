@@ -4,12 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Control de Medicamentos</title>
-        <script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
       tailwind.config = {
         darkMode: "class",
       };
     </script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link
@@ -637,8 +637,8 @@
         };
 
         themeToggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.contains("dark");
-          const newTheme = isDark ? "light" : "dark";
+          const currentTheme = localStorage.getItem("theme") || "light";
+          const newTheme = currentTheme === "light" ? "dark" : "light";
           applyTheme(newTheme);
         });
 
