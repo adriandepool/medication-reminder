@@ -27,6 +27,11 @@
         border-radius: 50%;
         display: inline-block;
       }
+      .day-checkbox:checked + label {
+        background-color: #14b8a6; /* teal-500 */
+        color: white;
+        border-color: #0f766e; /* teal-600 */
+      }
     </style>
   </head>
   <body class="bg-gray-100 text-gray-800">
@@ -117,17 +122,34 @@
             />
           </div>
           <div class="mb-4">
-            <label for="medTime" class="block text-gray-700 font-semibold mb-2"
-              >Hora de toma</label
+            <label class="block text-gray-700 font-semibold mb-2"
+              >Horarios de Dosis</label
+            >
+            <div id="dosesContainer" class="space-y-2">
+              <!-- Los horarios se agregarán aquí -->
+            </div>
+            <button
+              type="button"
+              id="addDoseBtn"
+              class="mt-2 text-sm text-teal-600 hover:text-teal-800 font-semibold"
+            >
+              + Agregar Horario
+            </button>
+          </div>
+          <div id="quantity-section" class="mb-4">
+            <label
+              for="medQuantity"
+              class="block text-gray-700 font-semibold mb-2"
+              >Cantidad Inicial (dosis)</label
             >
             <input
-              type="time"
-              id="medTime"
+              type="number"
+              id="medQuantity"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-              required
+              min="0"
             />
           </div>
-          <div class="mb-6">
+          <div class="mb-4">
             <label for="medColor" class="block text-gray-700 font-semibold mb-2"
               >Color del Recordatorio</label
             >
@@ -138,6 +160,103 @@
               value="#22c55e"
               required
             />
+          </div>
+          <div class="mb-4">
+            <label for="medNotes" class="block text-gray-700 font-semibold mb-2"
+              >Notas (Opcional)</label
+            >
+            <textarea
+              id="medNotes"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              rows="3"
+            ></textarea>
+          </div>
+          <div class="mb-4 border-t pt-4">
+            <label class="flex items-center space-x-2">
+              <input type="checkbox" id="specificDaysToggle" class="h-4 w-4" />
+              <span class="text-gray-700 font-semibold"
+                >Tomar solo en días específicos</span
+              >
+            </label>
+          </div>
+          <div id="daysOfWeek" class="hidden mb-6 flex justify-around">
+            <input
+              type="checkbox"
+              id="day-1"
+              value="1"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-1"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >L</label
+            >
+            <input
+              type="checkbox"
+              id="day-2"
+              value="2"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-2"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >M</label
+            >
+            <input
+              type="checkbox"
+              id="day-3"
+              value="3"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-3"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >M</label
+            >
+            <input
+              type="checkbox"
+              id="day-4"
+              value="4"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-4"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >J</label
+            >
+            <input
+              type="checkbox"
+              id="day-5"
+              value="5"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-5"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >V</label
+            >
+            <input
+              type="checkbox"
+              id="day-6"
+              value="6"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-6"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >S</label
+            >
+            <input
+              type="checkbox"
+              id="day-0"
+              value="0"
+              class="hidden day-checkbox"
+            />
+            <label
+              for="day-0"
+              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              >D</label
+            >
           </div>
           <div class="flex justify-end space-x-4">
             <button
@@ -256,8 +375,18 @@
         const modalTitle = document.getElementById("modalTitle");
         const medIdInput = document.getElementById("medId");
         const medNameInput = document.getElementById("medName");
-        const medTimeInput = document.getElementById("medTime");
         const medColorInput = document.getElementById("medColor");
+        const medQuantityInput = document.getElementById("medQuantity");
+        const medNotesInput = document.getElementById("medNotes");
+        const quantitySection = document.getElementById("quantity-section");
+        const quantityLabel = document.querySelector(
+          'label[for="medQuantity"]'
+        );
+        const specificDaysToggle =
+          document.getElementById("specificDaysToggle");
+        const daysOfWeekContainer = document.getElementById("daysOfWeek");
+        const dosesContainer = document.getElementById("dosesContainer");
+        const addDoseBtn = document.getElementById("addDoseBtn");
         const emptyState = document.getElementById("empty-state");
 
         // Modal de confirmación
@@ -302,6 +431,33 @@
         let currentDate = new Date();
         let notificationQueue = [];
 
+        // --- Lógica de Dosis ---
+        const createTimeInput = (time = "") => {
+          const div = document.createElement("div");
+          div.className = "flex items-center space-x-2";
+          const input = document.createElement("input");
+          input.type = "time";
+          input.className =
+            "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500";
+          input.value = time;
+          input.required = true;
+          div.appendChild(input);
+
+          const removeBtn = document.createElement("button");
+          removeBtn.type = "button";
+          removeBtn.innerHTML =
+            '<svg class="w-6 h-6 text-red-500 hover:text-red-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+          removeBtn.onclick = () => {
+            if (dosesContainer.children.length > 1) {
+              div.remove();
+            }
+          };
+          div.appendChild(removeBtn);
+          dosesContainer.appendChild(div);
+        };
+
+        addDoseBtn.addEventListener("click", () => createTimeInput());
+
         // --- Lógica de Modales ---
         const openModal = (modal, content) => {
           modal.classList.remove("hidden");
@@ -326,6 +482,12 @@
           medForm.reset();
           medColorInput.value = "#22c55e";
           medIdInput.value = "";
+          quantitySection.style.display = "block";
+          quantityLabel.textContent = "Cantidad Inicial (dosis)";
+          medQuantityInput.required = true;
+          daysOfWeekContainer.classList.add("hidden");
+          dosesContainer.innerHTML = "";
+          createTimeInput();
           openModal(medModal, medModalContent);
         });
 
@@ -354,6 +516,14 @@
             closeModal(deleteConfirmModal, deleteConfirmModalContent);
         });
 
+        specificDaysToggle.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            daysOfWeekContainer.classList.remove("hidden");
+          } else {
+            daysOfWeekContainer.classList.add("hidden");
+          }
+        });
+
         // --- Lógica de Medicamentos (CRUD) ---
         const renderMedications = () => {
           medicationList.innerHTML = "";
@@ -362,27 +532,51 @@
             emptyState.style.display = "block";
           } else {
             emptyState.style.display = "none";
+            const dayNames = ["D", "L", "M", "Mi", "J", "V", "S"];
             medications
-              .sort((a, b) => a.time.localeCompare(b.time))
+              .sort((a, b) => a.times[0].localeCompare(b.times[0]))
               .forEach((med) => {
                 const div = document.createElement("div");
                 div.className =
                   "flex justify-between items-center bg-gray-50 p-3 rounded-lg border";
+
+                let quantityText = "";
+                if (med.quantity !== undefined && med.quantity !== null) {
+                  if (med.quantity <= 7) {
+                    quantityText = `<span class="text-red-600 font-bold">Quedan: ${med.quantity} dosis ⚠️</span>`;
+                  } else {
+                    quantityText = `<span class="text-gray-600">Quedan: ${med.quantity} dosis</span>`;
+                  }
+                }
+
+                let notesHTML = "";
+                if (med.notes) {
+                  notesHTML = `<p class="text-xs text-gray-500 mt-1 italic overflow-hidden text-ellipsis whitespace-nowrap max-w-xs" title="${med.notes}">Nota: ${med.notes}</p>`;
+                }
+
+                let daysText = "Diario";
+                if (med.days && med.days.length > 0) {
+                  daysText =
+                    "Días: " + med.days.map((d) => dayNames[d]).join(", ");
+                }
+
                 div.innerHTML = `
                             <div class="flex items-center">
                                 <span class="w-4 h-4 rounded-full mr-3" style="background-color: ${
                                   med.color || "#22c55e"
                                 };"></span>
-                                <div>
+                                <div class="overflow-hidden">
                                     <p class="font-semibold text-teal-700">${
                                       med.name
                                     }</p>
-                                    <p class="text-sm text-gray-500">${
-                                      med.time
-                                    }</p>
+                                    <p class="text-sm text-gray-500">${med.times.join(
+                                      ", "
+                                    )} - <span class="font-medium">${daysText}</span></p>
+                                    <div class="text-sm mt-1">${quantityText}</div>
+                                    ${notesHTML}
                                 </div>
                             </div>
-                            <div class="space-x-2 flex items-center">
+                            <div class="space-x-2 flex items-center flex-shrink-0">
                                 <button data-id="${
                                   med.id
                                 }" class="edit-btn text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors">
@@ -403,20 +597,46 @@
         medForm.addEventListener("submit", (e) => {
           e.preventDefault();
           const id = medIdInput.value;
-          const medData = {
-            name: medNameInput.value,
-            time: medTimeInput.value,
-            color: medColorInput.value,
-          };
+          const selectedDays = [];
+          if (specificDaysToggle.checked) {
+            daysOfWeekContainer
+              .querySelectorAll("input:checked")
+              .forEach((checkbox) => {
+                selectedDays.push(parseInt(checkbox.value, 10));
+              });
+          }
+
+          const times = Array.from(
+            dosesContainer.querySelectorAll("input[type='time']")
+          ).map((input) => input.value);
 
           if (id) {
             // Editar
-            medications = medications.map((med) =>
-              med.id == id ? { ...med, ...medData } : med
-            );
+            medications = medications.map((med) => {
+              if (med.id == id) {
+                return {
+                  ...med,
+                  name: medNameInput.value,
+                  times: times,
+                  color: medColorInput.value,
+                  quantity: parseInt(medQuantityInput.value, 10),
+                  notes: medNotesInput.value,
+                  days: selectedDays,
+                };
+              }
+              return med;
+            });
           } else {
             // Crear
-            medData.id = Date.now();
+            const medData = {
+              name: medNameInput.value,
+              times: times,
+              color: medColorInput.value,
+              id: Date.now(),
+              quantity: parseInt(medQuantityInput.value, 10),
+              notes: medNotesInput.value,
+              days: selectedDays,
+            };
             medications.push(medData);
           }
 
@@ -436,8 +656,32 @@
               modalTitle.textContent = "Editar Medicamento";
               medIdInput.value = medToEdit.id;
               medNameInput.value = medToEdit.name;
-              medTimeInput.value = medToEdit.time;
+
+              dosesContainer.innerHTML = "";
+              medToEdit.times.forEach((time) => createTimeInput(time));
+
               medColorInput.value = medToEdit.color || "#22c55e";
+              quantityLabel.textContent = "Cantidad (dosis)";
+              medQuantityInput.value = medToEdit.quantity;
+              medNotesInput.value = medToEdit.notes || "";
+              quantitySection.style.display = "block";
+              medQuantityInput.required = true;
+
+              // Populate days of week
+              const hasSpecificDays =
+                medToEdit.days && medToEdit.days.length > 0;
+              specificDaysToggle.checked = hasSpecificDays;
+              if (hasSpecificDays) {
+                daysOfWeekContainer.classList.remove("hidden");
+              } else {
+                daysOfWeekContainer.classList.add("hidden");
+              }
+              daysOfWeekContainer.querySelectorAll("input").forEach((cb) => {
+                cb.checked =
+                  hasSpecificDays &&
+                  medToEdit.days.includes(parseInt(cb.value, 10));
+              });
+
               openModal(medModal, medModalContent);
             }
           }
@@ -462,8 +706,21 @@
         });
 
         const markMedAsTaken = (medId) => {
-          const medTaken = medications.find((med) => med.id == medId);
-          if (!medTaken) return;
+          const medIndex = medications.findIndex((m) => m.id == medId);
+          if (medIndex === -1) return;
+
+          const medTaken = medications[medIndex];
+
+          // Decrement quantity
+          if (
+            medTaken.quantity !== undefined &&
+            medTaken.quantity !== null &&
+            medTaken.quantity > 0
+          ) {
+            medications[medIndex].quantity--;
+            localStorage.setItem("medications", JSON.stringify(medications));
+            renderMedications();
+          }
 
           const now = new Date();
           const today = `${now.getFullYear()}-${(now.getMonth() + 1)
@@ -478,12 +735,18 @@
             completedMeds[today] = [];
           }
 
-          if (!completedMeds[today].some((m) => m.id == medId)) {
+          // Evita duplicados si se hace clic varias veces en el mismo minuto
+          const alreadyTaken = completedMeds[today].some(
+            (m) => m.id === medId && m.timeTaken === timeTaken
+          );
+
+          if (!alreadyTaken) {
             completedMeds[today].push({
               id: medId,
               color: medTaken.color,
               name: medTaken.name,
               timeTaken: timeTaken,
+              notes: medTaken.notes,
             });
           }
           localStorage.setItem("completedMeds", JSON.stringify(completedMeds));
@@ -493,6 +756,7 @@
         // --- Lógica de Notificaciones ---
         const checkMedicationTime = () => {
           const now = new Date();
+          const currentDay = now.getDay(); // 0 = Domingo, 1 = Lunes, etc.
           const currentTime = `${now
             .getHours()
             .toString()
@@ -511,16 +775,25 @@
           let notifiedMedsToday =
             JSON.parse(localStorage.getItem("notifiedMedsToday")) || [];
 
-          const medsToNotify = medications.filter(
-            (med) =>
-              med.time === currentTime && !notifiedMedsToday.includes(med.id)
-          );
+          medications.forEach((med) => {
+            const isDaily = !med.days || med.days.length === 0;
+            const isToday = med.days && med.days.includes(currentDay);
 
-          if (medsToNotify.length > 0) {
-            medsToNotify.forEach((med) => {
-              notificationQueue.push(med); // Agrega a la cola
-              notifiedMedsToday.push(med.id);
-            });
+            if (isDaily || isToday) {
+              med.times.forEach((time) => {
+                const notificationId = `${med.id}-${time}`;
+                if (
+                  time === currentTime &&
+                  !notifiedMedsToday.includes(notificationId)
+                ) {
+                  notificationQueue.push(med);
+                  notifiedMedsToday.push(notificationId);
+                }
+              });
+            }
+          });
+
+          if (notificationQueue.length > 0) {
             localStorage.setItem(
               "notifiedMedsToday",
               JSON.stringify(notifiedMedsToday)
@@ -584,14 +857,22 @@
               .sort((a, b) => a.timeTaken.localeCompare(b.timeTaken))
               .forEach((med) => {
                 const div = document.createElement("div");
-                div.className =
-                  "flex items-center justify-between p-2 bg-gray-50 rounded";
+                div.className = "p-2 bg-gray-50 rounded";
+
+                let noteHistoryHTML = "";
+                if (med.notes) {
+                  noteHistoryHTML = `<p class="text-xs text-gray-500 italic mt-1">Nota: ${med.notes}</p>`;
+                }
+
                 div.innerHTML = `
-                            <div class="flex items-center">
-                                <span class="completed-dot mr-3" style="background-color: ${med.color};"></span>
-                                <span>${med.name}</span>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <span class="completed-dot mr-3" style="background-color: ${med.color};"></span>
+                                    <span>${med.name}</span>
+                                </div>
+                                <span class="font-semibold text-gray-600">${med.timeTaken} hs</span>
                             </div>
-                            <span class="font-semibold text-gray-600">${med.timeTaken} hs</span>
+                            ${noteHistoryHTML}
                         `;
                 historyModalList.appendChild(div);
               });
