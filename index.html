@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Control de Medicamentos</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -32,17 +34,43 @@
         color: white;
         border-color: #0f766e; /* teal-600 */
       }
+      #pdf-content {
+        width: 800px;
+        padding: 20px;
+        font-family: "Inter", sans-serif;
+        color: #333;
+      }
     </style>
   </head>
   <body class="bg-gray-100 text-gray-800">
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
-      <header class="text-center mb-8">
+      <header class="text-center mb-8 relative">
         <h1 class="text-3xl md:text-4xl font-bold text-teal-600">
           Mi Pastillero Digital
         </h1>
         <p class="text-gray-600 mt-2">
           Gestiona tus medicamentos y recordatorios de forma sencilla.
         </p>
+        <button
+          id="exportPdfBtn"
+          class="absolute top-0 right-0 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold p-2 rounded-full transition-colors"
+          title="Exportar a PDF"
+        >
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            ></path>
+          </svg>
+        </button>
       </header>
 
       <!-- Sección de Medicamentos -->
@@ -367,6 +395,7 @@
       document.addEventListener("DOMContentLoaded", () => {
         // Elementos del DOM
         const addMedBtn = document.getElementById("addMedBtn");
+        const exportPdfBtn = document.getElementById("exportPdfBtn");
         const medModal = document.getElementById("medModal");
         const medModalContent = document.getElementById("medModalContent");
         const cancelBtn = document.getElementById("cancelBtn");
@@ -949,6 +978,102 @@
           currentDate.setMonth(currentDate.getMonth() + 1);
           renderCalendar();
         });
+
+        const exportToPDF = () => {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+          const margin = 10;
+          let y = margin;
+
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(18);
+          doc.text("Reporte de Medicamentos", margin, y);
+          y += 10;
+
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(14);
+          doc.text("Mis Medicamentos", margin, y);
+          y += 8;
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          const dayNames = ["D", "L", "M", "Mi", "J", "V", "S"];
+
+          medications.forEach((med) => {
+            let daysText = "Diario";
+            if (med.days && med.days.length > 0) {
+              daysText = "Días: " + med.days.map((d) => dayNames[d]).join(", ");
+            }
+
+            doc.text(`- ${med.name}`, margin, y);
+            y += 5;
+            doc.text(`   Horarios: ${med.times.join(", ")}`, margin, y);
+            y += 5;
+            doc.text(`   Frecuencia: ${daysText}`, margin, y);
+            y += 5;
+            if (med.quantity !== null && med.quantity !== undefined) {
+              doc.text(
+                `   Cantidad restante: ${med.quantity} dosis`,
+                margin,
+                y
+              );
+              y += 5;
+            }
+            if (med.notes) {
+              doc.text(`   Notas: ${med.notes}`, margin, y);
+              y += 5;
+            }
+            y += 5;
+          });
+
+          y += 10;
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(14);
+          doc.text(
+            `Historial de Tomas - ${currentMonthYearEl.textContent}`,
+            margin,
+            y
+          );
+          y += 8;
+
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+
+          const month = currentDate.getMonth();
+          const year = currentDate.getFullYear();
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+          for (let day = 1; day <= daysInMonth; day++) {
+            const dayStr = `${year}-${(month + 1)
+              .toString()
+              .padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+
+            if (completedMeds[dayStr] && completedMeds[dayStr].length > 0) {
+              doc.setFont("helvetica", "bold");
+              doc.text(`Día ${day}:`, margin, y);
+              y += 5;
+              doc.setFont("helvetica", "normal");
+
+              completedMeds[dayStr].forEach((med) => {
+                doc.text(
+                  `   - ${med.name} (Tomada a las ${med.timeTaken} hs)`,
+                  margin,
+                  y
+                );
+                y += 5;
+                if (y > 280) {
+                  // page break
+                  doc.addPage();
+                  y = margin;
+                }
+              });
+            }
+          }
+
+          doc.save("Reporte_Medicamentos.pdf");
+        };
+
+        exportPdfBtn.addEventListener("click", exportToPDF);
 
         // --- Inicialización ---
         const initialize = () => {
