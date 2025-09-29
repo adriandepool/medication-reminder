@@ -632,8 +632,8 @@
         };
 
         themeToggle.addEventListener("click", () => {
-          const currentTheme = localStorage.getItem("theme") || "light";
-          const newTheme = currentTheme === "light" ? "dark" : "light";
+          const isDark = document.documentElement.classList.contains("dark");
+          const newTheme = isDark ? "light" : "dark";
           applyTheme(newTheme);
         });
 
