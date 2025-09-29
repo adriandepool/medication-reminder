@@ -34,47 +34,124 @@
         color: white;
         border-color: #0f766e; /* teal-600 */
       }
-      #pdf-content {
-        width: 800px;
-        padding: 20px;
-        font-family: "Inter", sans-serif;
-        color: #333;
-      }
     </style>
   </head>
-  <body class="bg-gray-100 text-gray-800">
+  <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
       <header class="text-center mb-8 relative">
-        <h1 class="text-3xl md:text-4xl font-bold text-teal-600">
+        <h1
+          class="text-3xl md:text-4xl font-bold text-teal-600 dark:text-teal-400"
+        >
           Mi Pastillero Digital
         </h1>
-        <p class="text-gray-600 mt-2">
+        <p class="text-gray-600 dark:text-gray-400 mt-2">
           Gestiona tus medicamentos y recordatorios de forma sencilla.
         </p>
-        <button
-          id="exportPdfBtn"
-          class="absolute top-0 right-0 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold p-2 rounded-full transition-colors"
-          title="Exportar a PDF"
-        >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
+        <div class="absolute top-0 left-0">
+          <button
+            id="theme-toggle"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold p-2 rounded-full transition-colors"
+            title="Cambiar Tema"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            ></path>
-          </svg>
-        </button>
+            <svg
+              id="theme-icon-light"
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              ></path>
+            </svg>
+            <svg
+              id="theme-icon-dark"
+              class="w-6 h-6 hidden"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              ></path>
+            </svg>
+          </button>
+        </div>
+        <div class="absolute top-0 right-0 flex space-x-2">
+          <button
+            id="backupBtn"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold p-2 rounded-full transition-colors"
+            title="Crear Copia de Seguridad (Exportar)"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+              ></path>
+            </svg>
+          </button>
+          <button
+            id="restoreBtn"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold p-2 rounded-full transition-colors"
+            title="Restaurar Copia de Seguridad (Importar)"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+              ></path>
+            </svg>
+          </button>
+          <button
+            id="exportPdfBtn"
+            class="bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-bold p-2 rounded-full transition-colors"
+            title="Exportar a PDF"
+          >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
+            </svg>
+          </button>
+          <input type="file" id="importFile" class="hidden" accept=".json" />
+        </div>
       </header>
 
       <!-- Sección de Medicamentos -->
-      <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold">Mis Medicamentos</h2>
           <button
@@ -86,30 +163,35 @@
         </div>
         <div id="medicationList" class="space-y-3">
           <!-- Los medicamentos se insertarán aquí dinámicamente -->
-          <p id="empty-state" class="text-center text-gray-500 py-4">
+          <p
+            id="empty-state"
+            class="text-center text-gray-500 dark:text-gray-400 py-4"
+          >
             Aún no has agregado medicamentos.
           </p>
         </div>
       </div>
 
       <!-- Sección de Calendario -->
-      <div class="bg-white p-6 rounded-2xl shadow-lg">
+      <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
         <div class="flex justify-between items-center mb-4">
           <button
             id="prevMonth"
-            class="p-2 rounded-full hover:bg-gray-200 transition-colors"
+            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           >
             &lt;
           </button>
           <h2 id="currentMonthYear" class="text-xl font-semibold"></h2>
           <button
             id="nextMonth"
-            class="p-2 rounded-full hover:bg-gray-200 transition-colors"
+            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
           >
             &gt;
           </button>
         </div>
-        <div class="calendar-grid text-center font-semibold text-gray-600 mb-2">
+        <div
+          class="calendar-grid text-center font-semibold text-gray-600 dark:text-gray-400 mb-2"
+        >
           <div>Dom</div>
           <div>Lun</div>
           <div>Mar</div>
@@ -130,7 +212,7 @@
       class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4"
     >
       <div
-        class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-95 opacity-0"
+        class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-95 opacity-0"
         id="medModalContent"
       >
         <h3 id="modalTitle" class="text-2xl font-bold mb-6 text-center">
@@ -139,18 +221,21 @@
         <form id="medForm">
           <input type="hidden" id="medId" />
           <div class="mb-4">
-            <label for="medName" class="block text-gray-700 font-semibold mb-2"
+            <label
+              for="medName"
+              class="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
               >Nombre del Medicamento</label
             >
             <input
               type="text"
               id="medName"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               required
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 font-semibold mb-2"
+            <label
+              class="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
               >Horarios de Dosis</label
             >
             <div id="dosesContainer" class="space-y-2">
@@ -159,7 +244,7 @@
             <button
               type="button"
               id="addDoseBtn"
-              class="mt-2 text-sm text-teal-600 hover:text-teal-800 font-semibold"
+              class="mt-2 text-sm text-teal-600 dark:text-teal-400 hover:text-teal-800 dark:hover:text-teal-300 font-semibold"
             >
               + Agregar Horario
             </button>
@@ -167,47 +252,56 @@
           <div id="quantity-section" class="mb-4">
             <label
               for="medQuantity"
-              class="block text-gray-700 font-semibold mb-2"
+              class="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
               >Cantidad Inicial (dosis)</label
             >
             <input
               type="number"
               id="medQuantity"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               min="0"
             />
           </div>
           <div class="mb-4">
-            <label for="medColor" class="block text-gray-700 font-semibold mb-2"
+            <label
+              for="medColor"
+              class="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
               >Color del Recordatorio</label
             >
             <input
               type="color"
               id="medColor"
-              class="w-full h-10 px-1 py-1 border border-gray-300 rounded-lg cursor-pointer"
+              class="w-full h-10 px-1 py-1 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer"
               value="#22c55e"
               required
             />
           </div>
           <div class="mb-4">
-            <label for="medNotes" class="block text-gray-700 font-semibold mb-2"
+            <label
+              for="medNotes"
+              class="block text-gray-700 dark:text-gray-300 font-semibold mb-2"
               >Notas (Opcional)</label
             >
             <textarea
               id="medNotes"
-              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
+              class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
               rows="3"
             ></textarea>
           </div>
-          <div class="mb-4 border-t pt-4">
+          <div class="mb-4 border-t border-gray-200 dark:border-gray-700 pt-4">
             <label class="flex items-center space-x-2">
-              <input type="checkbox" id="specificDaysToggle" class="h-4 w-4" />
-              <span class="text-gray-700 font-semibold"
+              <input
+                type="checkbox"
+                id="specificDaysToggle"
+                class="h-4 w-4 rounded text-teal-500 focus:ring-teal-500"
+              />
+              <span class="text-gray-700 dark:text-gray-300 font-semibold"
                 >Tomar solo en días específicos</span
               >
             </label>
           </div>
           <div id="daysOfWeek" class="hidden mb-6 flex justify-around">
+            <!-- Los checkboxes de los días se mantienen igual, el estilo se aplica a la etiqueta -->
             <input
               type="checkbox"
               id="day-1"
@@ -216,7 +310,7 @@
             />
             <label
               for="day-1"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >L</label
             >
             <input
@@ -227,7 +321,7 @@
             />
             <label
               for="day-2"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >M</label
             >
             <input
@@ -238,7 +332,7 @@
             />
             <label
               for="day-3"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >M</label
             >
             <input
@@ -249,7 +343,7 @@
             />
             <label
               for="day-4"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >J</label
             >
             <input
@@ -260,7 +354,7 @@
             />
             <label
               for="day-5"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >V</label
             >
             <input
@@ -271,7 +365,7 @@
             />
             <label
               for="day-6"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >S</label
             >
             <input
@@ -282,7 +376,7 @@
             />
             <label
               for="day-0"
-              class="cursor-pointer border-2 rounded-full w-10 h-10 flex items-center justify-center font-bold"
+              class="cursor-pointer border-2 border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 rounded-full w-10 h-10 flex items-center justify-center font-bold"
               >D</label
             >
           </div>
@@ -290,7 +384,7 @@
             <button
               type="button"
               id="cancelBtn"
-              class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+              class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded-lg transition-colors"
             >
               Cancelar
             </button>
@@ -311,22 +405,31 @@
       class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4"
     >
       <div
-        class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-95 opacity-0"
+        class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-95 opacity-0"
         id="confirmationModalContent"
       >
         <input type="hidden" id="confirmMedId" />
         <h3 class="text-2xl font-bold mb-4">¡Hora de tu medicina!</h3>
-        <p id="confirmMedText" class="text-gray-600 mb-6 text-lg"></p>
-        <div class="flex justify-center space-x-4">
+        <p
+          id="confirmMedText"
+          class="text-gray-600 dark:text-gray-400 mb-6 text-lg"
+        ></p>
+        <div class="flex justify-center space-x-2">
+          <button
+            id="snoozeBtn"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+          >
+            Posponer 5 min
+          </button>
           <button
             id="confirmTakenBtn"
-            class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg transition-colors text-lg"
+            class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
           >
             ¡Tomada!
           </button>
           <button
             id="confirmSkipBtn"
-            class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+            class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-4 rounded-lg transition-colors"
           >
             Omitir
           </button>
@@ -340,7 +443,7 @@
       class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4"
     >
       <div
-        class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-95 opacity-0"
+        class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-95 opacity-0"
         id="historyModalContent"
       >
         <h3 id="historyModalTitle" class="text-2xl font-bold mb-4 text-center">
@@ -353,7 +456,7 @@
           <button
             type="button"
             id="closeHistoryBtn"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded-lg transition-colors"
           >
             Cerrar
           </button>
@@ -367,17 +470,20 @@
       class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4"
     >
       <div
-        class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-95 opacity-0"
+        class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-95 opacity-0"
         id="deleteConfirmModalContent"
       >
         <h3 class="text-2xl font-bold mb-4 text-red-600">
           Confirmar Eliminación
         </h3>
-        <p id="deleteConfirmText" class="text-gray-600 mb-6 text-lg"></p>
+        <p
+          id="deleteConfirmText"
+          class="text-gray-600 dark:text-gray-400 mb-6 text-lg"
+        ></p>
         <div class="flex justify-center space-x-4">
           <button
             id="cancelDeleteBtn"
-            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded-lg transition-colors"
           >
             Cancelar
           </button>
@@ -391,11 +497,51 @@
       </div>
     </div>
 
+    <!-- Modal Confirmar Importación -->
+    <div
+      id="importConfirmModal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-sm text-center transform transition-all scale-95 opacity-0"
+        id="importConfirmModalContent"
+      >
+        <h3 class="text-2xl font-bold mb-4 text-orange-600">
+          Confirmar Importación
+        </h3>
+        <p class="text-gray-600 dark:text-gray-400 mb-6 text-lg">
+          ¿Estás seguro de que quieres restaurar los datos? Esto sobreescribirá
+          todos los datos actuales.
+        </p>
+        <div class="flex justify-center space-x-4">
+          <button
+            id="cancelImportBtn"
+            class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            id="confirmImportBtn"
+            class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Restaurar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Elementos del DOM
         const addMedBtn = document.getElementById("addMedBtn");
         const exportPdfBtn = document.getElementById("exportPdfBtn");
+        const backupBtn = document.getElementById("backupBtn");
+        const restoreBtn = document.getElementById("restoreBtn");
+        const importFile = document.getElementById("importFile");
+        const themeToggle = document.getElementById("theme-toggle");
+        const themeIconLight = document.getElementById("theme-icon-light");
+        const themeIconDark = document.getElementById("theme-icon-dark");
+
         const medModal = document.getElementById("medModal");
         const medModalContent = document.getElementById("medModalContent");
         const cancelBtn = document.getElementById("cancelBtn");
@@ -425,6 +571,7 @@
         );
         const confirmMedText = document.getElementById("confirmMedText");
         const confirmTakenBtn = document.getElementById("confirmTakenBtn");
+        const snoozeBtn = document.getElementById("snoozeBtn");
         const confirmSkipBtn = document.getElementById("confirmSkipBtn");
         const confirmMedIdInput = document.getElementById("confirmMedId");
 
@@ -447,6 +594,15 @@
         const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
         const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
 
+        // Modal de confirmación de importación
+        const importConfirmModal =
+          document.getElementById("importConfirmModal");
+        const importConfirmModalContent = document.getElementById(
+          "importConfirmModalContent"
+        );
+        const cancelImportBtn = document.getElementById("cancelImportBtn");
+        const confirmImportBtn = document.getElementById("confirmImportBtn");
+
         // Calendario
         const calendarEl = document.getElementById("calendar");
         const currentMonthYearEl = document.getElementById("currentMonthYear");
@@ -459,6 +615,27 @@
           JSON.parse(localStorage.getItem("completedMeds")) || {};
         let currentDate = new Date();
         let notificationQueue = [];
+        let dataToImport = null;
+
+        // --- Lógica del Tema (Modo Oscuro) ---
+        const applyTheme = (theme) => {
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+            themeIconLight.classList.add("hidden");
+            themeIconDark.classList.remove("hidden");
+          } else {
+            document.documentElement.classList.remove("dark");
+            themeIconLight.classList.remove("hidden");
+            themeIconDark.classList.add("hidden");
+          }
+          localStorage.setItem("theme", theme);
+        };
+
+        themeToggle.addEventListener("click", () => {
+          const currentTheme = localStorage.getItem("theme") || "light";
+          const newTheme = currentTheme === "light" ? "dark" : "light";
+          applyTheme(newTheme);
+        });
 
         // --- Lógica de Dosis ---
         const createTimeInput = (time = "") => {
@@ -467,7 +644,7 @@
           const input = document.createElement("input");
           input.type = "time";
           input.className =
-            "w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500";
+            "w-full px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500";
           input.value = time;
           input.required = true;
           div.appendChild(input);
@@ -533,6 +710,10 @@
         cancelDeleteBtn.addEventListener("click", () =>
           closeModal(deleteConfirmModal, deleteConfirmModalContent)
         );
+        cancelImportBtn.addEventListener("click", () =>
+          closeModal(importConfirmModal, importConfirmModalContent)
+        );
+
         medModal.addEventListener("click", (e) => {
           if (e.target === medModal) closeModal(medModal, medModalContent);
         });
@@ -543,6 +724,10 @@
         deleteConfirmModal.addEventListener("click", (e) => {
           if (e.target === deleteConfirmModal)
             closeModal(deleteConfirmModal, deleteConfirmModalContent);
+        });
+        importConfirmModal.addEventListener("click", (e) => {
+          if (e.target === importConfirmModal)
+            closeModal(importConfirmModal, importConfirmModalContent);
         });
 
         specificDaysToggle.addEventListener("change", (e) => {
@@ -567,20 +752,20 @@
               .forEach((med) => {
                 const div = document.createElement("div");
                 div.className =
-                  "flex justify-between items-center bg-gray-50 p-3 rounded-lg border";
+                  "flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 p-3 rounded-lg border border-gray-200 dark:border-gray-700";
 
                 let quantityText = "";
                 if (med.quantity !== undefined && med.quantity !== null) {
                   if (med.quantity <= 7) {
-                    quantityText = `<span class="text-red-600 font-bold">Quedan: ${med.quantity} dosis ⚠️</span>`;
+                    quantityText = `<span class="text-red-500 font-bold">Quedan: ${med.quantity} dosis ⚠️</span>`;
                   } else {
-                    quantityText = `<span class="text-gray-600">Quedan: ${med.quantity} dosis</span>`;
+                    quantityText = `<span class="text-gray-600 dark:text-gray-400">Quedan: ${med.quantity} dosis</span>`;
                   }
                 }
 
                 let notesHTML = "";
                 if (med.notes) {
-                  notesHTML = `<p class="text-xs text-gray-500 mt-1 italic overflow-hidden text-ellipsis whitespace-nowrap max-w-xs" title="${med.notes}">Nota: ${med.notes}</p>`;
+                  notesHTML = `<p class="text-xs text-gray-500 dark:text-gray-400 mt-1 italic overflow-hidden text-ellipsis whitespace-nowrap max-w-xs" title="${med.notes}">Nota: ${med.notes}</p>`;
                 }
 
                 let daysText = "Diario";
@@ -595,10 +780,10 @@
                                   med.color || "#22c55e"
                                 };"></span>
                                 <div class="overflow-hidden">
-                                    <p class="font-semibold text-teal-700">${
+                                    <p class="font-semibold text-teal-700 dark:text-teal-400">${
                                       med.name
                                     }</p>
-                                    <p class="text-sm text-gray-500">${med.times.join(
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">${med.times.join(
                                       ", "
                                     )} - <span class="font-medium">${daysText}</span></p>
                                     <div class="text-sm mt-1">${quantityText}</div>
@@ -608,12 +793,12 @@
                             <div class="space-x-2 flex items-center flex-shrink-0">
                                 <button data-id="${
                                   med.id
-                                }" class="edit-btn text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors">
+                                }" class="edit-btn text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/50 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.5L15.232 5.232z"></path></svg>
                                 </button>
                                 <button data-id="${
                                   med.id
-                                }" class="delete-btn text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 transition-colors">
+                                }" class="delete-btn text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/50 transition-colors">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                 </button>
                             </div>
@@ -858,6 +1043,17 @@
           openModal(confirmationModal, confirmationModalContent);
         };
 
+        snoozeBtn.addEventListener("click", () => {
+          const medId = confirmMedIdInput.value;
+          const medToSnooze = medications.find((med) => med.id == medId);
+          if (medToSnooze) {
+            setTimeout(() => {
+              showNotification(medToSnooze);
+            }, 300000); // 5 minutos
+          }
+          closeModal(confirmationModal, confirmationModalContent);
+        });
+
         confirmTakenBtn.addEventListener("click", () => {
           const medId = confirmMedIdInput.value;
           markMedAsTaken(medId);
@@ -886,11 +1082,11 @@
               .sort((a, b) => a.timeTaken.localeCompare(b.timeTaken))
               .forEach((med) => {
                 const div = document.createElement("div");
-                div.className = "p-2 bg-gray-50 rounded";
+                div.className = "p-2 bg-gray-50 dark:bg-gray-700/50 rounded";
 
                 let noteHistoryHTML = "";
                 if (med.notes) {
-                  noteHistoryHTML = `<p class="text-xs text-gray-500 italic mt-1">Nota: ${med.notes}</p>`;
+                  noteHistoryHTML = `<p class="text-xs text-gray-500 dark:text-gray-400 italic mt-1">Nota: ${med.notes}</p>`;
                 }
 
                 div.innerHTML = `
@@ -899,7 +1095,7 @@
                                     <span class="completed-dot mr-3" style="background-color: ${med.color};"></span>
                                     <span>${med.name}</span>
                                 </div>
-                                <span class="font-semibold text-gray-600">${med.timeTaken} hs</span>
+                                <span class="font-semibold text-gray-600 dark:text-gray-400">${med.timeTaken} hs</span>
                             </div>
                             ${noteHistoryHTML}
                         `;
@@ -907,7 +1103,7 @@
               });
           } else {
             historyModalList.innerHTML =
-              '<p class="text-center text-gray-500">No se registraron tomas este día.</p>';
+              '<p class="text-center text-gray-500 dark:text-gray-400">No se registraron tomas este día.</p>';
           }
 
           openModal(historyModal, historyModalContent);
@@ -927,12 +1123,13 @@
           const daysInMonth = new Date(year, month + 1, 0).getDate();
 
           for (let i = 0; i < firstDayOfMonth; i++) {
-            calendarEl.innerHTML += `<div class="bg-gray-50 rounded"></div>`;
+            calendarEl.innerHTML += `<div class="bg-gray-50 dark:bg-gray-700/50 rounded"></div>`;
           }
 
           for (let day = 1; day <= daysInMonth; day++) {
             const dayEl = document.createElement("div");
-            dayEl.className = "calendar-day p-2 border rounded text-center";
+            dayEl.className =
+              "calendar-day p-2 border border-gray-200 dark:border-gray-700 rounded text-center";
 
             const dayStr = `${year}-${(month + 1)
               .toString()
@@ -943,7 +1140,11 @@
               month === today.getMonth() &&
               year === today.getFullYear()
             ) {
-              dayEl.classList.add("bg-teal-100", "font-bold");
+              dayEl.classList.add(
+                "bg-teal-100",
+                "dark:bg-teal-900/50",
+                "font-bold"
+              );
             }
 
             let dayContent = `<div>${day}</div>`;
@@ -952,6 +1153,7 @@
               dayEl.classList.add(
                 "cursor-pointer",
                 "hover:bg-gray-100",
+                "dark:hover:bg-gray-700",
                 "transition-colors"
               );
               dayEl.addEventListener("click", () => showDayHistory(dayStr));
@@ -1073,10 +1275,82 @@
           doc.save("Reporte_Medicamentos.pdf");
         };
 
+        const exportData = () => {
+          const dataToExport = {
+            medications: medications,
+            completedMeds: completedMeds,
+          };
+          const dataStr = JSON.stringify(dataToExport, null, 2);
+          const dataBlob = new Blob([dataStr], { type: "application/json" });
+          const url = URL.createObjectURL(dataBlob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "Pastillero_Backup.json";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+        };
+
+        const handleFileImport = (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const importedData = JSON.parse(e.target.result);
+              if (importedData.medications && importedData.completedMeds) {
+                dataToImport = importedData;
+                openModal(importConfirmModal, importConfirmModalContent);
+              } else {
+                alert("El archivo de respaldo no tiene el formato correcto.");
+              }
+            } catch (error) {
+              alert(
+                "No se pudo leer el archivo. Asegúrate de que sea un archivo de respaldo válido."
+              );
+            }
+          };
+          reader.readAsText(file);
+          importFile.value = "";
+        };
+
+        confirmImportBtn.addEventListener("click", () => {
+          if (dataToImport) {
+            medications = dataToImport.medications;
+            completedMeds = dataToImport.completedMeds;
+            localStorage.setItem("medications", JSON.stringify(medications));
+            localStorage.setItem(
+              "completedMeds",
+              JSON.stringify(completedMeds)
+            );
+            renderMedications();
+            renderCalendar();
+          }
+          closeModal(importConfirmModal, importConfirmModalContent);
+          dataToImport = null;
+        });
+
+        backupBtn.addEventListener("click", exportData);
+        restoreBtn.addEventListener("click", () => importFile.click());
+        importFile.addEventListener("change", handleFileImport);
         exportPdfBtn.addEventListener("click", exportToPDF);
 
         // --- Inicialización ---
         const initialize = () => {
+          const savedTheme = localStorage.getItem("theme");
+          const prefersDark = window.matchMedia(
+            "(prefers-color-scheme: dark)"
+          ).matches;
+          if (savedTheme) {
+            applyTheme(savedTheme);
+          } else if (prefersDark) {
+            applyTheme("dark");
+          } else {
+            applyTheme("light");
+          }
+
           renderMedications();
           renderCalendar();
           if (Notification.permission !== "granted") {
