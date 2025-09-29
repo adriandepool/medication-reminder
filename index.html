@@ -187,6 +187,33 @@
       </div>
     </div>
 
+    <!-- Modal Historial del Día -->
+    <div
+      id="historyModal"
+      class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md transform transition-all scale-95 opacity-0"
+        id="historyModalContent"
+      >
+        <h3 id="historyModalTitle" class="text-2xl font-bold mb-4 text-center">
+          Historial del Día
+        </h3>
+        <div id="historyModalList" class="space-y-3 max-h-64 overflow-y-auto">
+          <!-- El historial se insertará aquí dinámicamente -->
+        </div>
+        <div class="flex justify-end mt-6">
+          <button
+            type="button"
+            id="closeHistoryBtn"
+            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script>
       document.addEventListener("DOMContentLoaded", () => {
         // Elementos del DOM
@@ -213,6 +240,15 @@
         const confirmSkipBtn = document.getElementById("confirmSkipBtn");
         const confirmMedIdInput = document.getElementById("confirmMedId");
 
+        // Modal de historial
+        const historyModal = document.getElementById("historyModal");
+        const historyModalContent = document.getElementById(
+          "historyModalContent"
+        );
+        const historyModalTitle = document.getElementById("historyModalTitle");
+        const historyModalList = document.getElementById("historyModalList");
+        const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+
         // Calendario
         const calendarEl = document.getElementById("calendar");
         const currentMonthYearEl = document.getElementById("currentMonthYear");
@@ -238,7 +274,9 @@
           content.classList.add("scale-95", "opacity-0");
           setTimeout(() => {
             modal.classList.add("hidden");
-            processNotificationQueue(); // Procesa la siguiente notificación en la cola
+            if (modal === confirmationModal) {
+              processNotificationQueue(); // Procesa la siguiente notificación en la cola
+            }
           }, 200);
         };
 
@@ -258,8 +296,15 @@
         confirmSkipBtn.addEventListener("click", () =>
           closeModal(confirmationModal, confirmationModalContent)
         );
+        closeHistoryBtn.addEventListener("click", () =>
+          closeModal(historyModal, historyModalContent)
+        );
         medModal.addEventListener("click", (e) => {
           if (e.target === medModal) closeModal(medModal, medModalContent);
+        });
+        historyModal.addEventListener("click", (e) => {
+          if (e.target === historyModal)
+            closeModal(historyModal, historyModalContent);
         });
 
         // --- Lógica de Medicamentos (CRUD) ---
@@ -350,6 +395,33 @@
           }
         });
 
+        const markMedAsTaken = (medId) => {
+          const medTaken = medications.find((med) => med.id == medId);
+          if (!medTaken) return;
+
+          const now = new Date();
+          const today = now.toISOString().split("T")[0];
+          const timeTaken = now.toLocaleTimeString("es-ES", {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+
+          if (!completedMeds[today]) {
+            completedMeds[today] = [];
+          }
+
+          if (!completedMeds[today].some((m) => m.id == medId)) {
+            completedMeds[today].push({
+              id: medId,
+              color: medTaken.color,
+              name: medTaken.name,
+              timeTaken: timeTaken,
+            });
+          }
+          localStorage.setItem("completedMeds", JSON.stringify(completedMeds));
+          renderCalendar();
+        };
+
         // --- Lógica de Notificaciones ---
         const checkMedicationTime = () => {
           const now = new Date();
@@ -400,6 +472,7 @@
 
         const showNotification = (med) => {
           const notificationText = `Es hora de tomar tu ${med.name}.`;
+
           if (Notification.permission === "granted") {
             new Notification("Recordatorio de Medicamento", {
               body: notificationText,
@@ -415,22 +488,51 @@
 
         confirmTakenBtn.addEventListener("click", () => {
           const medId = confirmMedIdInput.value;
-          const medTaken = medications.find((med) => med.id == medId);
-          if (!medTaken) return;
-
-          const today = new Date().toISOString().split("T")[0];
-          if (!completedMeds[today]) {
-            completedMeds[today] = [];
-          }
-          if (!completedMeds[today].some((m) => m.id == medId)) {
-            completedMeds[today].push({ id: medId, color: medTaken.color });
-          }
-          localStorage.setItem("completedMeds", JSON.stringify(completedMeds));
+          markMedAsTaken(medId);
           closeModal(confirmationModal, confirmationModalContent);
-          renderCalendar();
         });
 
         // --- Lógica del Calendario ---
+        const showDayHistory = (dateStr) => {
+          const date = new Date(dateStr + "T00:00:00");
+          const options = {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          };
+          historyModalTitle.textContent = `Historial del ${date.toLocaleDateString(
+            "es-ES",
+            options
+          )}`;
+
+          const medsForDay = completedMeds[dateStr] || [];
+          historyModalList.innerHTML = "";
+
+          if (medsForDay.length > 0) {
+            medsForDay
+              .sort((a, b) => a.timeTaken.localeCompare(b.timeTaken))
+              .forEach((med) => {
+                const div = document.createElement("div");
+                div.className =
+                  "flex items-center justify-between p-2 bg-gray-50 rounded";
+                div.innerHTML = `
+                            <div class="flex items-center">
+                                <span class="completed-dot mr-3" style="background-color: ${med.color};"></span>
+                                <span>${med.name}</span>
+                            </div>
+                            <span class="font-semibold text-gray-600">${med.timeTaken} hs</span>
+                        `;
+                historyModalList.appendChild(div);
+              });
+          } else {
+            historyModalList.innerHTML =
+              '<p class="text-center text-gray-500">No se registraron tomas este día.</p>';
+          }
+
+          openModal(historyModal, historyModalContent);
+        };
+
         const renderCalendar = () => {
           calendarEl.innerHTML = "";
           const month = currentDate.getMonth();
@@ -444,7 +546,6 @@
           const firstDayOfMonth = new Date(year, month, 1).getDay();
           const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-          // Espacios en blanco para los días antes del inicio del mes
           for (let i = 0; i < firstDayOfMonth; i++) {
             calendarEl.innerHTML += `<div class="bg-gray-50 rounded"></div>`;
           }
@@ -468,6 +569,13 @@
             let dayContent = `<div>${day}</div>`;
 
             if (completedMeds[dayStr] && completedMeds[dayStr].length > 0) {
+              dayEl.classList.add(
+                "cursor-pointer",
+                "hover:bg-gray-100",
+                "transition-colors"
+              );
+              dayEl.addEventListener("click", () => showDayHistory(dayStr));
+
               let dotsHTML =
                 '<div class="mt-1 flex justify-center items-center space-x-1">';
               completedMeds[dayStr].forEach((completed) => {
@@ -495,8 +603,10 @@
         const initialize = () => {
           renderMedications();
           renderCalendar();
-          Notification.requestPermission();
-          setInterval(checkMedicationTime, 30000); // Revisa cada 30 segundos
+          if (Notification.permission !== "granted") {
+            Notification.requestPermission();
+          }
+          setInterval(checkMedicationTime, 15000); // Revisa cada 15 segundos
           checkMedicationTime(); // Revisa al cargar la página
         };
 
