@@ -1,0 +1,22 @@
+      body {
+        font-family: "Inter", sans-serif;
+      }
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+      }
+      .calendar-day {
+        min-height: 80px;
+      }
+      .completed-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .day-checkbox:checked + label {
+        background-color: #14b8a6; /* teal-500 */
+        color: white;
+        border-color: #0f766e; /* teal-600 */
+      }
