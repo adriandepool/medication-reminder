@@ -859,7 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const initialize = () => {
 
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
+            navigator.serviceWorker.register('/medication-reminder/sw.js')
                 .then(registration => {
                     console.log('Service Worker registrado con éxito:', registration);
                 })
