@@ -536,20 +536,30 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         const showNotification = (med) => {
-          const notificationText = `Es hora de tomar tu ${med.name}.`;
+    const notificationText = `Es hora de tomar tu ${med.name}.`;
 
-          if (Notification.permission === "granted") {
-            new Notification("Recordatorio de Medicamento", {
-              body: notificationText,
-              icon: "https://cdn-icons-png.flaticon.com/512/893/893309.png",
+    if (Notification.permission === "granted") {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.ready.then(registration => {
+                registration.showNotification("Recordatorio de Medicamento", {
+                    body: notificationText,
+                    icon: "https://cdn-icons-png.flaticon.com/512/893/893309.png",
+                    tag: med.id
+                });
             });
-          }
+        } else {
+            new Notification("Recordatorio de Medicamento", {
+                body: notificationText,
+                icon: "https://cdn-icons-png.flaticon.com/512/893/893309.png",
+            });
+        }
+    }
 
-          // Mostrar modal de confirmación
-          confirmMedIdInput.value = med.id;
-          confirmMedText.textContent = `¿Ya tomaste tu ${med.name}?`;
-          openModal(confirmationModal, confirmationModalContent);
-        };
+    // Mostrar modal de confirmación
+    confirmMedIdInput.value = med.id;
+    confirmMedText.textContent = `¿Ya tomaste tu ${med.name}?`;
+    openModal(confirmationModal, confirmationModalContent);
+};
 
         snoozeBtn.addEventListener("click", () => {
           const medId = confirmMedIdInput.value;
@@ -847,6 +857,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- Inicialización ---
         const initialize = () => {
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('Service Worker registrado con éxito:', registration);
+                })
+                .catch(error => {
+                    console.log('Error al registrar el Service Worker:', error);
+                });
+        }
+
           const savedTheme = localStorage.getItem("theme");
           const prefersDark = window.matchMedia(
             "(prefers-color-scheme: dark)"
