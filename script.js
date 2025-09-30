@@ -1,4 +1,4 @@
-      document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
         // Elementos del DOM
         const addMedBtn = document.getElementById("addMedBtn");
         const exportPdfBtn = document.getElementById("exportPdfBtn");
@@ -8,6 +8,7 @@
         const themeToggle = document.getElementById("theme-toggle");
         const themeIconLight = document.getElementById("theme-icon-light");
         const themeIconDark = document.getElementById("theme-icon-dark");
+        const enableNotificationsBtn = document.getElementById("enableNotificationsBtn");
 
         const medModal = document.getElementById("medModal");
         const medModalContent = document.getElementById("medModalContent");
@@ -102,6 +103,46 @@
           const currentTheme = localStorage.getItem("theme") || "light";
           const newTheme = currentTheme === "light" ? "dark" : "light";
           applyTheme(newTheme);
+        });
+
+        const updateNotificationButton = () => {
+          if (Notification.permission === "granted") {
+            enableNotificationsBtn.classList.add(
+              "bg-green-500",
+              "cursor-not-allowed"
+            );
+            enableNotificationsBtn.classList.remove(
+              "bg-blue-500",
+              "hover:bg-blue-600"
+            );
+            enableNotificationsBtn.title = "Las notificaciones ya están habilitadas";
+            enableNotificationsBtn.disabled = true;
+          } else {
+            enableNotificationsBtn.classList.remove(
+              "bg-green-500",
+              "cursor-not-allowed"
+            );
+            enableNotificationsBtn.classList.add(
+              "bg-blue-500",
+              "hover:bg-blue-600"
+            );
+            enableNotificationsBtn.title = "Habilitar Notificaciones";
+            enableNotificationsBtn.disabled = false;
+          }
+        };
+
+        enableNotificationsBtn.addEventListener("click", () => {
+          if (Notification.permission !== "granted") {
+            Notification.requestPermission().then((permission) => {
+              if (permission === "granted") {
+                new Notification("¡Gracias!", {
+                  body: "Has habilitado las notificaciones.",
+                  icon: "https://cdn-icons-png.flaticon.com/512/893/893309.png",
+                });
+              }
+              updateNotificationButton();
+            });
+          }
         });
 
         // --- Lógica de Dosis ---
@@ -820,9 +861,7 @@
 
           renderMedications();
           renderCalendar();
-          if (Notification.permission !== "granted") {
-            Notification.requestPermission();
-          }
+          updateNotificationButton();
           setInterval(checkMedicationTime, 15000); // Revisa cada 15 segundos
           checkMedicationTime(); // Revisa al cargar la página
         };
