@@ -8,6 +8,7 @@ const resetDailyState = () => {
     if (lastCheckDate !== today) {
         notifiedToday = [];
         lastCheckDate = today;
+        console.log("Nuevo día, reiniciando notificaciones.");
     }
 };
 
@@ -18,6 +19,8 @@ const checkMedicationTime = () => {
     const currentDay = now.getDay();
     const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
+    const dosesToShow = [];
+
     medications.forEach((med) => {
         const isDaily = !med.days || med.days.length === 0;
         const isToday = med.days && med.days.includes(currentDay);
@@ -25,30 +28,40 @@ const checkMedicationTime = () => {
         if (isDaily || isToday) {
             med.times.forEach((time) => {
                 const notificationId = `${med.id}-${time}`;
-                // Comprueba si la hora de la dosis ya pasó o es la actual, y si no ha sido notificada hoy
                 if (time <= currentTime && !notifiedToday.includes(notificationId)) {
-                    showNotification(med, time);
+                    dosesToShow.push({ med, time });
                     notifiedToday.push(notificationId);
                 }
             });
         }
     });
+
+    if (dosesToShow.length > 0) {
+        showNotifications(dosesToShow);
+    }
 };
 
-const showNotification = (med, time) => {
-    const notificationText = `Es hora de tu dosis de las ${time} de ${med.name}.`;
+const showNotifications = (doses) => {
     const notificationTitle = "Recordatorio de Medicamento";
+    let notificationText;
+
+    if (doses.length === 1) {
+        const { med, time } = doses[0];
+        notificationText = `Es hora de tu dosis de las ${time} de ${med.name}.`;
+    } else {
+        notificationText = `Tienes ${doses.length} dosis pendientes. Abre la app para revisarlas.`;
+    }
 
     self.registration.showNotification(notificationTitle, {
         body: notificationText,
         icon: "https://cdn-icons-png.flaticon.com/512/893/893309.png",
-        tag: med.id.toString() + '-' + time // Tag único por dosis
+        tag: 'medication-reminder' // Un tag genérico para agrupar
     });
 
-    // Enviar mensaje a la página para mostrar el modal si está abierta
+    // Enviar el array de medicamentos pendientes a la página
     self.clients.matchAll().then((clients) => {
         clients.forEach((client) => {
-            client.postMessage({ type: "SHOW_CONFIRMATION_MODAL", payload: med });
+            client.postMessage({ type: "SHOW_MODAL_QUEUE", payload: doses.map(d => d.med) });
         });
     });
 };
@@ -56,12 +69,12 @@ const showNotification = (med, time) => {
 self.addEventListener("message", (event) => {
     if (event.data.type === "UPDATE_MEDICATIONS") {
         medications = event.data.payload;
-        // Al recibir nuevos medicamentos, reinicia el estado diario y comprueba inmediatamente
+        console.log("Service Worker: Lista de medicamentos actualizada", medications);
         resetDailyState();
-        checkMedicationTime(); 
+        checkMedicationTime();
 
         if (checkInterval) clearInterval(checkInterval);
-        checkInterval = setInterval(checkMedicationTime, 15000);
+        checkInterval = setInterval(checkMedicationTime, 15000); 
     }
 });
 
@@ -89,7 +102,9 @@ self.addEventListener("notificationclick", function (event) {
 });
 
 self.addEventListener("activate", (event) => {
-    // Inicia el intervalo cuando el SW se activa
+    console.log("Service Worker activado.");
     if (checkInterval) clearInterval(checkInterval);
     checkInterval = setInterval(checkMedicationTime, 15000);
+    // Asegura que el SW tome control inmediato
+    self.clients.claim();
 });
