@@ -86,10 +86,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // --- Lógica de Notificaciones y Service Worker ---
         const sendMedicationsToSW = () => {
-            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-                navigator.serviceWorker.controller.postMessage({
-                    type: 'UPDATE_MEDICATIONS',
-                    payload: medications
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    if (registration.active) {
+                        registration.active.postMessage({
+                            type: 'UPDATE_MEDICATIONS',
+                            payload: medications
+                        });
+                    }
                 });
             }
         };
@@ -491,12 +495,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         snoozeBtn.addEventListener("click", () => {
-          const medId = confirmMedIdInput.value;
-          const medToSnooze = medications.find((med) => med.id == medId);
-          if (medToSnooze) {
-            // La lógica de posponer ahora es más compleja con el SW
-            // Por simplicidad, solo cerramos el modal
-          }
+          // La lógica de posponer es compleja con el SW, por ahora solo cierra el modal.
           closeModal(confirmationModal, confirmationModalContent);
         });
 
@@ -791,10 +790,11 @@ document.addEventListener("DOMContentLoaded", () => {
             navigator.serviceWorker.register('/medication-reminder/sw.js')
                 .then(registration => {
                     console.log('Service Worker registrado con éxito:', registration);
-                    // Enviar datos de medicación al SW cuando esté listo
-                    if (registration.active) {
+                    // Usamos navigator.serviceWorker.ready para asegurarnos que el SW está activo
+                    navigator.serviceWorker.ready.then(readyRegistration => {
+                        console.log("Service Worker listo.");
                         sendMedicationsToSW();
-                    }
+                    });
                 })
                 .catch(error => {
                     console.log('Error al registrar el Service Worker:', error);
