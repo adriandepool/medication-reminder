@@ -1,4 +1,6 @@
+// Version: 4
 let medications = [];
+let completedMeds = {};
 let checkInterval;
 let notifiedToday = [];
 let lastCheckDate = null;
@@ -16,23 +18,33 @@ const checkMedicationTime = () => {
     resetDailyState();
 
     const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
     const currentDay = now.getDay();
     const currentTime = `${now.getHours().toString().padStart(2, "0")}:${now.getMinutes().toString().padStart(2, "0")}`;
 
     const dosesToShow = [];
+
+    const todaysTakenMedsLog = completedMeds[todayStr] || [];
 
     medications.forEach((med) => {
         const isDaily = !med.days || med.days.length === 0;
         const isToday = med.days && med.days.includes(currentDay);
 
         if (isDaily || isToday) {
-            med.times.forEach((time) => {
-                const notificationId = `${med.id}-${time}`;
-                if (time <= currentTime && !notifiedToday.includes(notificationId)) {
-                    dosesToShow.push({ med, time });
-                    notifiedToday.push(notificationId);
-                }
-            });
+            const timesTakenCount = todaysTakenMedsLog.filter(t => t.id == med.id).length;
+            const dueScheduledTimes = med.times.filter(t => t <= currentTime);
+
+            if (dueScheduledTimes.length > timesTakenCount) {
+                const pendingDoses = dueScheduledTimes.slice(timesTakenCount);
+
+                pendingDoses.forEach(dueTime => {
+                    const notificationId = `${med.id}-${dueTime}`;
+                    if (!notifiedToday.includes(notificationId)) {
+                        dosesToShow.push({ med, time: dueTime });
+                        notifiedToday.push(notificationId);
+                    }
+                });
+            }
         }
     });
 
@@ -40,6 +52,7 @@ const checkMedicationTime = () => {
         showNotifications(dosesToShow);
     }
 };
+
 
 const showNotifications = (doses) => {
     const notificationTitle = "Recordatorio de Medicamento";
@@ -55,10 +68,9 @@ const showNotifications = (doses) => {
     self.registration.showNotification(notificationTitle, {
         body: notificationText,
         icon: "https://cdn-icons-png.flaticon.com/512/893/893309.png",
-        tag: 'medication-reminder' // Un tag genérico para agrupar
+        tag: 'medication-reminder'
     });
 
-    // Enviar el array de medicamentos pendientes a la página
     self.clients.matchAll().then((clients) => {
         clients.forEach((client) => {
             client.postMessage({ type: "SHOW_MODAL_QUEUE", payload: doses.map(d => d.med) });
@@ -68,8 +80,13 @@ const showNotifications = (doses) => {
 
 self.addEventListener("message", (event) => {
     if (event.data.type === "UPDATE_MEDICATIONS") {
-        medications = event.data.payload;
+        medications = event.data.payload.medications || [];
+        completedMeds = event.data.payload.completedMeds || {};
         console.log("Service Worker: Lista de medicamentos actualizada", medications);
+        console.log("Service Worker: Historial de tomas actualizado", completedMeds);
+
+        notifiedToday = [];
+
         resetDailyState();
         checkMedicationTime();
 
@@ -96,7 +113,7 @@ self.addEventListener("notificationclick", function (event) {
                     }
                     return client.focus();
                 }
-                return clients.openWindow("/medication-reminder/");
+                return clients.openWindow("./");
             })
     );
 });
@@ -105,6 +122,5 @@ self.addEventListener("activate", (event) => {
     console.log("Service Worker activado.");
     if (checkInterval) clearInterval(checkInterval);
     checkInterval = setInterval(checkMedicationTime, 15000);
-    // Asegura que el SW tome control inmediato
     self.clients.claim();
 });
